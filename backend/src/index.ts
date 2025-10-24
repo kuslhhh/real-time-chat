@@ -4,9 +4,10 @@ import { UserManager } from './UserManager';
 import { SupportedMessage, type IncomingMessage, type InitMessageType, type UpvoteMessageType, type UserMessageType } from './messages/IncomingMessages';
 import { Store } from './store/Store';
 import { SupportedMessage as OutgoingSupportedMessages, type OutgoingMessages } from "./messages/OutgoingMessages"
+import { InMemoryStore } from './store/InMemoryStore';
 
 const userManager = new UserManager()
-const store = new Store
+const store = new InMemoryStore()
 
 const server = http.createServer(function (request: any, response: any) {
    console.log((new Date()) + ' Received request for ' + request.url);
@@ -68,10 +69,14 @@ function messageHandler(ws: connection, message: IncomingMessage) {
          console.error("User not found in db")
          return;
       }
-      store.addChat(payload.userId, user.name, payload.roomId, payload.message)
+      let chat = store.addChat(payload.userId, user.name, payload.roomId, payload.message)
+      if(!chat) {
+         return
+      }
       const outgoingPayload: OutgoingMessages = {
          type: OutgoingSupportedMessages.AddChat,
          payload: {
+            chatId: chat.id,
             roomId: payload.roomId,
             message: payload.message,
             name: user.name,
@@ -90,12 +95,10 @@ function messageHandler(ws: connection, message: IncomingMessage) {
       }
       store.upvote(payload.userId, payload.roomId, payload.chatId)
       const outgoingPayload: OutgoingMessages = {
-         type: OutgoingSupportedMessages.UpdateChat,
+         type: OutgoingSupportedMessages.UpdateChat, 
          payload: {
             chatId: payload.chatId,
             roomId: payload.roomId,
-            message: payload.message,
-            name: user.name,
             upvotes: 0
          }
       }

@@ -8,7 +8,7 @@ export interface Chat {
    upvotes: UserId[]; // who has upvoted what
 }
 
-export class Store {
+export abstract class Store {
    constructor() {
 
    }
