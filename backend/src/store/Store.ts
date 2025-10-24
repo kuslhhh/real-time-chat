@@ -1,0 +1,31 @@
+export type UserId = string
+
+export interface Chat {
+   id: string;
+   userId: UserId;
+   name: String;
+   message: String;
+   upvotes: UserId[]; // who has upvoted what
+}
+
+export class Store {
+   constructor() {
+
+   }
+
+   initRoom(roomId: string) {
+
+   }
+
+   getChats(room: string, limit: number, offset: number) {
+
+   }
+
+   addChat(userId: UserId, name: string, room: string, message: string) {
+
+   }
+
+   upvote(userId: UserId, room: string, chatId: string) {
+
+   }
+}
