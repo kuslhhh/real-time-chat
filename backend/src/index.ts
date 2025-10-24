@@ -1,5 +1,12 @@
-import { server as WebSocketServer } from 'websocket'
-import  http from 'http'
+import { connection, server as WebSocketServer } from 'websocket'
+import http from 'http'
+import { UserManager } from './UserManager';
+import { SupportedMessage, type IncomingMessage, type InitMessageType, type UpvoteMessageType, type UserMessageType } from './messages/IncomingMessages';
+import { Store } from './store/Store';
+import { SupportedMessage as OutgoingSupportedMessages, type OutgoingMessages } from "./messages/OutgoingMessages"
+
+const userManager = new UserManager()
+const store = new Store
 
 const server = http.createServer(function (request: any, response: any) {
    console.log((new Date()) + ' Received request for ' + request.url);
@@ -10,7 +17,7 @@ server.listen(8080, function () {
    console.log((new Date()) + ' Server is listening on port 8080');
 });
 
-const wsServer  = new WebSocketServer({
+const wsServer = new WebSocketServer({
    httpServer: server,
    autoAcceptConnections: false
 });
@@ -32,11 +39,66 @@ wsServer.on('request', function (request) {
    connection.on('message', function (message) {
       // TODO: to add rate limiting logic
       if (message.type === 'utf8') {
-         console.log('Received Message: ' + message.utf8Data);
-         connection.sendUTF(message.utf8Data);
+
+         try {
+            messageHandler(connection, JSON.parse(message.utf8Data))
+         } catch (e) {
+
+         }
+
+         // console.log('Received Message: ' + message.utf8Data);
+         // connection.sendUTF(message.utf8Data);
       }
    });
    connection.on('close', function (reasonCode, description) {
       console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.');
    });
 });
+
+function messageHandler(ws: connection, message: IncomingMessage) {
+   if (message.type === SupportedMessage.JoinRoom) {
+      const payload = message.payload
+      userManager.addUser(payload.name, payload.roomId, payload.userId, ws)
+   }
+
+   if (message.type === SupportedMessage.SendMessage) {
+      const payload = message.payload
+      const user = userManager.getUser(payload.roomId, payload.userId)
+      if (!user) {
+         console.error("User not found in db")
+         return;
+      }
+      store.addChat(payload.userId, user.name, payload.roomId, payload.message)
+      const outgoingPayload: OutgoingMessages = {
+         type: OutgoingSupportedMessages.AddChat,
+         payload: {
+            roomId: payload.roomId,
+            message: payload.message,
+            name: user.name,
+            upvotes: 0
+         }
+      }
+      userManager.broadcast(payload.roomId, payload.userId, outgoingPayload)
+   }
+
+   if (message.type === SupportedMessage.UpvoteMessage) {
+      const payload = message.payload;
+      const user = userManager.getUser(payload.roomId, payload.userId)
+      if (!user) {
+         console.error("User not found in db")
+         return;
+      }
+      store.upvote(payload.userId, payload.roomId, payload.chatId)
+      const outgoingPayload: OutgoingMessages = {
+         type: OutgoingSupportedMessages.UpdateChat,
+         payload: {
+            chatId: payload.chatId,
+            roomId: payload.roomId,
+            message: payload.message,
+            name: user.name,
+            upvotes: 0
+         }
+      }
+      userManager.broadcast(payload.roomId, payload.userId, outgoingPayload)
+   }
+}
