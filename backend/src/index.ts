@@ -14,13 +14,13 @@ const server = http.createServer(function (request: any, response: any) {
    response.writeHead(404);
    response.end();
 });
-server.listen(8080, function () {
-   console.log((new Date()) + ' Server is listening on port 8080');
+server.listen(8084, function () {
+   console.log((new Date()) + ' Server is listening on port 8084');
 });
 
 const wsServer = new WebSocketServer({
    httpServer: server,
-   autoAcceptConnections: false
+   // autoAcceptConnections: true
 });
 
 function originIsAllowed(origin: string) {
@@ -35,7 +35,7 @@ wsServer.on('request', function (request) {
       return;
    }
 
-   var connection = request.accept('echo-protocol', request.origin);
+   const connection = request.accept(null, request.origin);
    console.log((new Date()) + ' Connection accepted.');
    connection.on('message', function (message) {
       // TODO: to add rate limiting logic
@@ -70,9 +70,7 @@ function messageHandler(ws: connection, message: IncomingMessage) {
          return;
       }
       let chat = store.addChat(payload.userId, user.name, payload.roomId, payload.message)
-      if(!chat) {
-         return
-      }
+      if (!chat) return
       const outgoingPayload: OutgoingMessages = {
          type: OutgoingSupportedMessages.AddChat,
          payload: {
@@ -93,13 +91,18 @@ function messageHandler(ws: connection, message: IncomingMessage) {
          console.error("User not found in db")
          return;
       }
-      store.upvote(payload.userId, payload.roomId, payload.chatId)
+      const chat = store.upvote(payload.userId, payload.roomId, payload.chatId)
+      
+      if (!chat) {
+         return
+      }
+
       const outgoingPayload: OutgoingMessages = {
-         type: OutgoingSupportedMessages.UpdateChat, 
+         type: OutgoingSupportedMessages.UpdateChat,
          payload: {
             chatId: payload.chatId,
             roomId: payload.roomId,
-            upvotes: 0
+            upvotes: chat.upvotes.length
          }
       }
       userManager.broadcast(payload.roomId, payload.userId, outgoingPayload)
