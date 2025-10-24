@@ -6,7 +6,13 @@
   "devDependencies": {
     "@types/bun": "latest"
   },
+  "scripts": {
+   "dev": "bun  --hot src/index.ts"
+  },
   "peerDependencies": {
     "typescript": "^5"
+  },
+  "dependencies": {
+    "websocket": "^1.0.35"
   }
 }

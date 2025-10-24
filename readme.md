@@ -1,2 +1,2 @@
 # Real time chat applicaion
-build with typescript node project
+build with typescript, node project
