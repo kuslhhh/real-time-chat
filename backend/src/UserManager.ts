@@ -1,60 +1,54 @@
-import type { connection } from "websocket"
-import type {OutgoingMessages} from "./messages/OutgoingMessages"
+import type { WebSocket } from "ws";
+import type { OutgoingMessages } from "./messages/OutgoingMessages";
+
 interface User {
-   name: string,
-   id: string
-   conn: connection;
+  name: string;
+  id: string;
+  ws: WebSocket;
 }
+
 interface Room {
-   users: User[]
+  users: User[];
 }
 
 export class UserManager {
-   private rooms: Map<string, Room>
-   constructor() {
-      this.rooms = new Map<string, Room>()
-   }
+  private rooms: Map<string, Room>;
 
-   addUser(name: string, userId: string, roomId: string, socket: connection) {
-      if (!this.rooms.get(roomId)) {
-         this.rooms.set(roomId, {
-            users: []
-         })
+  constructor() {
+    this.rooms = new Map<string, Room>();
+  }
+
+  addUser(name: string, userId: string, roomId: string, ws: WebSocket) {
+    if (!this.rooms.get(roomId)) {
+      this.rooms.set(roomId, { users: [] });
+    }
+    this.rooms.get(roomId)?.users.push({ name, id: userId, ws });
+  }
+
+  removeUser(roomId: string, userId: string) {
+    const room = this.rooms.get(roomId);
+    if (!room) return;
+    room.users = room.users.filter(({ id }) => id !== userId);
+  }
+
+  getUser(roomId: string, userId: string): User | null {
+    const room = this.rooms.get(roomId);
+    if (!room) return null;
+    return room.users.find(({ id }) => id === userId) ?? null;
+  }
+
+  broadcast(roomId: string, senderId: string, message: OutgoingMessages) {
+    const room = this.rooms.get(roomId);
+    if (!room) {
+      console.error("Room not found");
+      return;
+    }
+
+    const msgStr = JSON.stringify(message);
+    for (const user of room.users) {
+      if (user.id !== senderId && user.ws.readyState === user.ws.OPEN) {
+        user.ws.send(msgStr);
       }
-      this.rooms.get(roomId)?.users.push({
-         conn: socket,
-         id: userId,
-         name
-      })
-   }
-
-   removeUser(roomId: string, userId: string) {
-      const users = this.rooms.get(roomId)?.users
-      if (users) {
-         users.filter(({ id }) => id !== userId)
-      }
-   }
-
-   getUser(roomId: string, userId: string): User | null {
-      const user = this.rooms.get(roomId)?.users.find((({ id }) => id === userId))
-      return user ?? null;
-   }
-
-   broadcast(roomId: string, userId: string, message: OutgoingMessages) {
-      const user = this.getUser(roomId, userId)
-      if (!user) {
-         console.error("User not found")
-         return;
-      }
-
-      const room = this.rooms.get(roomId)
-      if (!room) {
-         console.error("Room not found")
-         return
-      } 
-
-      room.users.forEach(({ conn }) => {
-         conn.sendUTF(JSON.stringify(message))
-      })
-   }
+    }
+  }
 }

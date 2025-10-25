@@ -1,0 +1,53 @@
+[33mcommit 1ade123483f1f2cd3d1f86684803b49982876480[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: kuslhhh <kushaljadhav7745@gmail.com>
+Date:   Sat Oct 25 17:49:38 2025 +0530
+
+    migrated to ws library
+
+[33mcommit 5fedfff6d96262d86f0f762450058faf75e54fc8[m
+Author: kuslhhh <kushaljadhav7745@gmail.com>
+Date:   Fri Oct 24 16:21:50 2025 +0530
+
+    connection and port
+
+[33mcommit 11166b9fe901775d401cf87bae730d97fe959caa[m
+Author: kuslhhh <kushaljadhav7745@gmail.com>
+Date:   Fri Oct 24 15:41:13 2025 +0530
+
+    class fix
+
+[33mcommit 6ef8e031268d5ae54736ab629fc679fd2b57f445[m
+Author: kuslhhh <kushaljadhav7745@gmail.com>
+Date:   Fri Oct 24 14:00:39 2025 +0530
+
+    ws room logic with types
+
+[33mcommit bcd161b2d182134337039e43a2964d20ad5f434a[m
+Author: kuslhhh <kushaljadhav7745@gmail.com>
+Date:   Fri Oct 24 11:24:07 2025 +0530
+
+    UserManager
+
+[33mcommit fdd0ae0554bc773b091b6fed1dd6f97140ed00c1[m
+Author: kuslhhh <kushaljadhav7745@gmail.com>
+Date:   Fri Oct 24 10:54:42 2025 +0530
+
+    inMemory store for chat
+
+[33mcommit 3cd0b5b0661f6a73323495be5638bdb10f1ee677[m
+Author: kuslhhh <kushaljadhav7745@gmail.com>
+Date:   Fri Oct 24 09:54:21 2025 +0530
+
+    initialized frontend
+
+[33mcommit d8de8b29f939c9351cd2fe24a94ba41243d13c40[m
+Author: kuslhhh <kushaljadhav7745@gmail.com>
+Date:   Thu Oct 23 19:17:16 2025 +0530
+
+    initialized backend
+
+[33mcommit ef30f1c3c7afef95aa53cd3e753bad68fde5bc43[m
+Author: kuslhhh <kushaljadhav7745@gmail.com>
+Date:   Thu Oct 23 19:04:23 2025 +0530
+
+    initialized project
