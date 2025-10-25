@@ -14,7 +14,9 @@
   },
   "dependencies": {
     "@types/websocket": "^1.0.10",
+    "@types/ws": "^8.18.1",
     "websocket": "^1.0.35",
+    "ws": "^8.18.3",
     "zod": "^4.1.12"
   }
 }

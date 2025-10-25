@@ -1,8 +1,7 @@
 import { connection, server as WebSocketServer } from 'websocket'
 import http from 'http'
 import { UserManager } from './UserManager';
-import { SupportedMessage, type IncomingMessage, type InitMessageType, type UpvoteMessageType, type UserMessageType } from './messages/IncomingMessages';
-import { Store } from './store/Store';
+import { SupportedMessage, type IncomingMessage } from './messages/IncomingMessages';
 import { SupportedMessage as OutgoingSupportedMessages, type OutgoingMessages } from "./messages/OutgoingMessages"
 import { InMemoryStore } from './store/InMemoryStore';
 
@@ -14,8 +13,8 @@ const server = http.createServer(function (request: any, response: any) {
    response.writeHead(404);
    response.end();
 });
-server.listen(8084, function () {
-   console.log((new Date()) + ' Server is listening on port 8084');
+server.listen(8081, function () {
+   console.log((new Date()) + ' Server is listening on port 8081');
 });
 
 const wsServer = new WebSocketServer({
@@ -44,7 +43,7 @@ wsServer.on('request', function (request) {
          try {
             messageHandler(connection, JSON.parse(message.utf8Data))
          } catch (e) {
-
+             console.error('Failed to handle message:', e, message.utf8Data)
          }
 
          // console.log('Received Message: ' + message.utf8Data);
